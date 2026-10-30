@@ -6,6 +6,8 @@ Text is set in Geist, embedded in every SVG, so it renders the same everywhere.
 """
 
 import base64
+import hashlib
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -286,11 +288,22 @@ def footer(th):
 def main():
     out = ROOT / "assets"
     out.mkdir(exist_ok=True)
+    versions = {}
     for name, fn in {"hero": hero, "about": about, "stack": stack, "footer": footer}.items():
         for theme, th in THEMES.items():
             content = fn(th)
-            (out / f"{name}-{theme}.svg").write_text(content, encoding="utf-8")
-            print(f"{name}-{theme}.svg".ljust(24), f"{len(content) / 1024:6.1f} KB")
+            file = f"{name}-{theme}.svg"
+            (out / file).write_text(content, encoding="utf-8")
+            versions[file] = hashlib.sha1(content.encode()).hexdigest()[:8]
+            print(file.ljust(24), f"{len(content) / 1024:6.1f} KB")
+
+    # Cache-bust: browsers and GitHub's image cache keep old copies of a URL,
+    # so each image link carries a version that changes when the image does.
+    readme = ROOT / "README.md"
+    text_ = readme.read_text(encoding="utf-8")
+    for file, version in versions.items():
+        text_ = re.sub(rf"assets/{re.escape(file)}(\?v=\w+)?", f"assets/{file}?v={version}", text_)
+    readme.write_text(text_, encoding="utf-8")
 
 
 if __name__ == "__main__":
