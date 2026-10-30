@@ -15,8 +15,8 @@
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=81c83524" />
-  <img src="assets/stack-light.svg?v=71e7cf37" width="100%" alt="Tech stack — Code: frontend (HTML & CSS, JavaScript, TypeScript, React, Tailwind CSS), backend (PHP, Python), database (MySQL), languages (Java, C, C++). Cut: software (Premiere Pro, DaVinci Resolve, CapCut), techniques (color grading, sound design). Capture: cinematic framing, composition, camera movement, B-roll, phone filming. Tools: development (VS Code, Git, GitHub, XAMPP, Vercel), design (Figma, Canva, Photoshop, Lightroom), workflow (Notion)." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=099ab917" />
+  <img src="assets/stack-light.svg?v=d1ccdb5a" width="100%" alt="Tech stack — Code: frontend (HTML & CSS, JavaScript, TypeScript, React, Tailwind CSS), backend (PHP, Laravel, Python), database (MySQL), languages (Java, C, C++). Cut: software (Premiere Pro, DaVinci Resolve, CapCut), techniques (color grading, sound design). Capture: cinematic framing, composition, camera movement, B-roll, phone filming. Tools: development (VS Code, Git, GitHub, XAMPP, Vercel), design (Figma, Canva, Photoshop, Lightroom), workflow (Notion)." />
 </picture>
 
 <picture>
