@@ -16,7 +16,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg" />
-  <img src="assets/stack-light.svg" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, natural light, B-roll, gimbal work, slow motion, shot lists, storyboarding, phone filming." />
+  <img src="assets/stack-light.svg" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming." />
 </picture>
 
 <picture>
