@@ -18,7 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      # Before the snake: its container creates dist/ as root, which this step can't write into
+      - name: Draw ANALYSIS.EXE
+        run: python scripts/stats.py ${{ github.repository_owner }} dist/analysis.svg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: Platane/snk@v3
         with:
@@ -26,11 +32,6 @@ jobs:
           outputs: |
             dist/snake-dark.svg?color_snake=#ffffff&color_dots=#161616,#3a3a3a,#6b6b6b,#a3a3a3,#ffffff
             dist/snake-light.svg?color_snake=#000000&color_dots=#ebebeb,#bdbdbd,#8a8a8a,#4f4f4f,#000000
-
-      - name: Draw ANALYSIS.EXE
-        run: python scripts/stats.py ${{ github.repository_owner }} dist/analysis.svg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:
