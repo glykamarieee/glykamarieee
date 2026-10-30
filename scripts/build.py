@@ -25,7 +25,7 @@ ABOUT = [  # the about card, line by line
     "staying for.",
 ]
 BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
-LEARNING = ["Three.js & WebGL", "Color grading", "Motion graphics"]
+LEARNING = ["After Effects", "Motion graphics", "Three.js & WebGL", "Color grading"]
 
 CRAFTS = [  # (title, one-liner)
     ("Code", "Interfaces that feel alive."),
@@ -36,7 +36,8 @@ CRAFTS = [  # (title, one-liner)
 # (craft, [(tool, level 1-5)]) — level 5 tools are highlighted as daily drivers
 STACK = [
     ("Code", [("HTML & CSS", 4), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
-              ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("Git", 4)]),
+              ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("PHP", 3), ("Java", 3),
+              ("C++", 3), ("C", 3), ("Python", 3), ("MySQL", 3), ("Git", 4), ("GitHub", 4)]),
     ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
              ("CapCut", 4), ("Color grading", 4), ("Sound design", 3)]),
     ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
@@ -83,7 +84,7 @@ def t(x, y, s, size, fill, weight=400, cls="s", anchor="start", ls=0.0, extra=""
 
 def width(s, size, mono=False):
     """Rough advance width — good enough for laying out pills."""
-    return len(s) * size * (0.6 if mono else 0.515)
+    return len(s) * size * (0.6 if mono else 0.53)
 
 
 def label(x, y, s, th):
@@ -192,7 +193,7 @@ def hero(th):
 
 def about(th):
     gap = 12
-    top_h, row_h = 222, 118
+    top_h, row_h = 234, 118
     h = top_h + gap + row_h
     rw = 300
     lw = W - rw - gap

@@ -5,18 +5,18 @@
 -->
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg?v=3ac986f7" />
-  <img src="assets/hero-light.svg?v=d159783f" width="100%" alt="Glyka Marie Amahan — developer, editor and videographer based in Cebu, Philippines. Available for projects." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg?v=48612296" />
+  <img src="assets/hero-light.svg?v=e5c87cf0" width="100%" alt="Glyka Marie Amahan — developer, editor and videographer based in Cebu, Philippines. Available for projects." />
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=f981f701" />
-  <img src="assets/about-light.svg?v=53a01eca" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning Three.js & WebGL, color grading and motion graphics." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=d71d3c5e" />
+  <img src="assets/about-light.svg?v=13cfa5a9" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, motion graphics, Three.js & WebGL and color grading." />
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=8ecc5c5a" />
-  <img src="assets/stack-light.svg?v=5cf11f62" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=aadf03d7" />
+  <img src="assets/stack-light.svg?v=2bc13e1c" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, PHP, Java, C++, C, Python, MySQL, Git, GitHub. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming." />
 </picture>
 
 <picture>
@@ -41,6 +41,6 @@
 </p>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/footer-dark.svg?v=e183b198" />
-  <img src="assets/footer-light.svg?v=cb94e5f4" width="100%" alt="Thanks for stopping by" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/footer-dark.svg?v=818a9ff1" />
+  <img src="assets/footer-light.svg?v=cb41941b" width="100%" alt="Thanks for stopping by" />
 </picture>
