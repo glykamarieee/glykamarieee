@@ -38,8 +38,7 @@ STACK = [
     ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
              ("CapCut", 5), ("Color grading", 4), ("Sound design", 3)]),
     ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
-                 ("Natural light", 4), ("B-roll", 4), ("Gimbal work", 3), ("Slow motion", 3),
-                 ("Shot lists", 3), ("Storyboarding", 3), ("Phone filming", 4)]),
+                 ("B-roll", 4), ("Phone filming", 4)]),
 ]
 
 FOOTER = "Thanks for stopping by"
