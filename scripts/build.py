@@ -23,7 +23,7 @@ ABOUT = [  # the about card, line by line
     "staying for.",
 ]
 BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
-LEARNING = ["Three.js & WebGL", "Color grading", "Drone shots"]
+LEARNING = ["Three.js & WebGL", "Color grading", "Motion graphics"]
 
 CRAFTS = [  # (title, one-liner)
     ("Code", "Interfaces that feel alive."),
@@ -37,8 +37,9 @@ STACK = [
               ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("Git", 4)]),
     ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
              ("CapCut", 5), ("Color grading", 4), ("Sound design", 3)]),
-    ("Capture", [("Cinematic framing", 4), ("Camera movement", 4), ("Drone shots", 3),
-                 ("Natural light", 4), ("Storyboarding", 3), ("Phone filming", 5)]),
+    ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
+                 ("Natural light", 4), ("B-roll", 4), ("Gimbal work", 3), ("Slow motion", 3),
+                 ("Shot lists", 3), ("Storyboarding", 3), ("Phone filming", 4)]),
 ]
 
 FOOTER = "Thanks for stopping by"

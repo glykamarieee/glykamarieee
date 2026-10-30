@@ -11,12 +11,12 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg" />
-  <img src="assets/about-light.svg" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning Three.js & WebGL, color grading and drone shots." />
+  <img src="assets/about-light.svg" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning Three.js & WebGL, color grading and motion graphics." />
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg" />
-  <img src="assets/stack-light.svg" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, camera movement, drone shots, natural light, storyboarding, phone filming." />
+  <img src="assets/stack-light.svg" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, natural light, B-roll, gimbal work, slow motion, shot lists, storyboarding, phone filming." />
 </picture>
 
 <picture>
