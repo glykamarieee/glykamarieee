@@ -10,13 +10,13 @@
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=d71d3c5e" />
-  <img src="assets/about-light.svg?v=13cfa5a9" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, motion graphics, Three.js & WebGL and color grading." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=2d02b43e" />
+  <img src="assets/about-light.svg?v=ddbcb349" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, motion graphics and color grading." />
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=aadf03d7" />
-  <img src="assets/stack-light.svg?v=2bc13e1c" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, PHP, Java, C++, C, Python, MySQL, Git, GitHub. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=1abda61a" />
+  <img src="assets/stack-light.svg?v=62fd1e30" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Tailwind CSS, PHP, Java, C++, C, Python, MySQL. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming. Tools: VS Code, Figma, Git, GitHub, Canva, Photoshop, Lightroom, Notion, XAMPP, Vercel." />
 </picture>
 
 <picture>

@@ -25,7 +25,7 @@ ABOUT = [  # the about card, line by line
     "staying for.",
 ]
 BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
-LEARNING = ["After Effects", "Motion graphics", "Three.js & WebGL", "Color grading"]
+LEARNING = ["After Effects", "Motion graphics", "Color grading"]
 
 CRAFTS = [  # (title, one-liner)
     ("Code", "Interfaces that feel alive."),
@@ -36,13 +36,16 @@ CRAFTS = [  # (title, one-liner)
 # (craft, [(tool, level 1-5)]) — level 5 tools are highlighted as daily drivers
 STACK = [
     ("Code", [("HTML & CSS", 4), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
-              ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("PHP", 3), ("Java", 3),
-              ("C++", 3), ("C", 3), ("Python", 3), ("MySQL", 3), ("Git", 4), ("GitHub", 4)]),
+              ("Tailwind CSS", 4), ("PHP", 3), ("Java", 3), ("C++", 3), ("C", 3),
+              ("Python", 3), ("MySQL", 3)]),
     ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
              ("CapCut", 4), ("Color grading", 4), ("Sound design", 3)]),
     ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
                  ("B-roll", 4), ("Phone filming", 4)]),
 ]
+
+# The apps behind all three crafts — a full-width card under the stack
+TOOLS = ["VS Code", "Figma", "Git", "GitHub", "Canva", "Photoshop", "Lightroom", "Notion", "XAMPP", "Vercel"]
 
 FOOTER = "Thanks for stopping by"
 
@@ -122,6 +125,13 @@ def icon(kind, cx, cy, color, s=1.0):
                 f'<rect x="{cx - 1 * s}" y="{cy - 9 * s}" width="{18 * s}" height="{6 * s}" rx="{2 * s}"/>'
                 f'<rect x="{cx - 17 * s}" y="{cy + 2 * s}" width="{22 * s}" height="{6 * s}" rx="{2 * s}" opacity=".55"/></g>'
                 f'<path d="M{cx + 4 * s} {cy - 14 * s}v{27 * s}" stroke="{color}" stroke-width="{sw}" stroke-linecap="round"/>')
+    if kind == "Tools":  # an app grid: four rounded squares, one filled
+        k, g = 13 * s, 4 * s
+        return "".join(
+            f'<rect x="{cx - k - g / 2 + (k + g) * c}" y="{cy - k - g / 2 + (k + g) * r}" width="{k}" height="{k}" rx="{3.5 * s}" '
+            + (f'fill="{color}"/>' if (r, c) == (0, 0) else f'fill="none" stroke="{color}" stroke-width="{sw}"/>')
+            for r in range(2) for c in range(2)
+        )
     return (f'<rect x="{cx - 17 * s}" y="{cy - 10 * s}" width="{34 * s}" height="{22 * s}" rx="{5 * s}" stroke="{color}" '
             f'stroke-width="{sw}" fill="none"/><circle cx="{cx}" cy="{cy + 1 * s}" r="{6 * s}" stroke="{color}" '
             f'stroke-width="{sw}" fill="none"/><path d="M{cx - 7 * s} {cy - 10 * s}l3 {-4 * s}h{8 * s}l3 {4 * s}" '
@@ -254,7 +264,19 @@ def stack(th):
         layouts.append(items)
         tallest = max(tallest, y + 10 + pad)  # last pill row spans y-18 .. y+10
     head = 64
-    h = head + tallest + 2
+
+    # Tools: one full-width card, title on the left, pills flowing on the right
+    tools_x0, tools_w = 170, W - 170 - pad
+    x, y, tool_items = 0, 0, []
+    for tool in TOOLS:
+        w = width(tool, 13) + 24
+        if x + w > tools_w:
+            x, y = 0, y + 36
+        tool_items.append((x, y, tool))
+        x += w + 6
+    tools_y = head + tallest + gap
+    tools_h = max(104, y + 28 + pad * 2)
+    h = tools_y + tools_h + 2
 
     body = [t(2, 28, "Tech stack", 24, th["text"], 600, ls=-0.6),
             t(2, 50, "What I build, cut and shoot with.", 14, th["muted"])]
@@ -273,7 +295,19 @@ def stack(th):
         for j, (px, py, tool, level) in enumerate(items):
             p, _ = pill(x0 + px, head + py - 18, tool, th, size=13, inverted=level == 5)
             body.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{0.15 + i * 0.2 + j * 0.06:.2f}s" fill="freeze"/>{p}</g>')
-    return svg(W, h, "".join(body), "Tech stack: " + "; ".join(f"{c}: " + ", ".join(n for n, _ in tl) for c, tl in STACK), th)
+
+    body.append(card(0, tools_y, W, tools_h, th))
+    body.append(t(pad, tools_y + 32, f"0{len(STACK) + 1}", 11, th["faint"], 500, "m", ls=1))
+    body.append(t(pad, tools_y + 66, "Tools", 22, th["text"], 600, ls=-0.5))
+    body.append(icon("Tools", 120, tools_y + 52, th["text"], 0.8))
+    rows_h = tool_items[-1][1] + 28 if tool_items else 0
+    ty = tools_y + (tools_h - rows_h) / 2  # pills centered vertically in the card
+    for j, (px, py, tool) in enumerate(tool_items):
+        p, _ = pill(tools_x0 + px, ty + py, tool, th, size=13)
+        body.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{0.8 + j * 0.05:.2f}s" fill="freeze"/>{p}</g>')
+
+    summary = "; ".join(f"{c}: " + ", ".join(n for n, _ in tl) for c, tl in STACK) + "; Tools: " + ", ".join(TOOLS)
+    return svg(W, h, "".join(body), "Tech stack: " + summary, th)
 
 
 def footer(th):
