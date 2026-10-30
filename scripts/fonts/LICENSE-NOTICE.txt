@@ -1,0 +1,2 @@
+Geist (c) Vercel, licensed under the SIL Open Font License 1.1 (https://openfontlicense.org).
+Embedded in the generated SVGs so they render in the same typeface everywhere.

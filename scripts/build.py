@@ -1,440 +1,295 @@
-"""Generates the 1-bit, dithered, retro-OS SVGs for the GitHub profile README.
+"""Generates the modern monochrome SVGs for the GitHub profile README, in a
+light and a dark version each (the README swaps them with <picture>).
 
 Edit the DATA section, then run:  python scripts/build.py
-Everything is drawn as pixels (a built-in 5x7 font + ordered dithering), so it
-looks identical everywhere and needs no web fonts or outside services.
+Text is set in Geist, embedded in every SVG, so it renders the same everywhere.
 """
 
-import math
+import base64
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
 
 # ---------------------------------------------------------------- DATA --
 
-NAME = ["GLYKA MARIE", "AMAHAN"]
-ROLE = "DEVELOPER · EDITOR · VIDEOGRAPHER"
-PLACE = "CEBU, PH"
+NAME = ["Glyka Marie", "Amahan"]
+STATUS = "Available for projects"
+TAGLINE = ["Developer, editor & videographer", "based in Cebu, Philippines."]
 
-ABOUT = [
-    ("> WHOAMI", False),
-    ("GLYKA MARIE AMAHAN", True),
-    ("> CAT ROLE.TXT", False),
-    ("DEVELOPER, EDITOR AND VIDEOGRAPHER", True),
-    ("> CAT LOCATION.TXT", False),
-    ("CEBU, PHILIPPINES", True),
-    ("> LS CRAFTS/", False),
-    ("CODE/   CUT/   CAPTURE/", True),
-    ("> CAT NOW.TXT", False),
-    ("LEARNING THREE.JS, COLOR GRADING, DRONE SHOTS", True),
-    ("> CAT MOTTO.TXT", False),
-    ("EVERY SCROLL, CUT AND FRAME SHOULD SAY SOMETHING.", True),
+ABOUT = [  # the about card, line by line
+    "I write the code, cut the film and",
+    "frame the shot — so every scroll, edit",
+    "and moment feels like a story worth",
+    "staying for.",
+]
+BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
+LEARNING = ["Three.js & WebGL", "Color grading", "Drone shots"]
+
+CRAFTS = [  # (title, one-liner)
+    ("Code", "Interfaces that feel alive."),
+    ("Cut", "Edits with rhythm and story."),
+    ("Capture", "Shots worth keeping."),
 ]
 
-# (category, [(tool, level 1-5)])
+# (craft, [(tool, level 1-5)]) — level 5 tools are highlighted as daily drivers
 STACK = [
-    ("CODE", [("HTML & CSS", 5), ("JAVASCRIPT", 4), ("TYPESCRIPT", 4), ("REACT", 4),
-              ("NEXT.JS", 4), ("TAILWIND CSS", 4), ("GSAP", 3), ("GIT", 4)]),
-    ("CUT", [("PREMIERE PRO", 4), ("AFTER EFFECTS", 3), ("DAVINCI RESOLVE", 3),
-             ("CAPCUT", 5), ("COLOR GRADING", 4), ("SOUND DESIGN", 3)]),
-    ("CAPTURE", [("CINEMATIC FRAMING", 4), ("CAMERA MOVEMENT", 4), ("DRONE SHOTS", 3),
-                 ("NATURAL LIGHT", 4), ("STORYBOARDING", 3), ("PHONE FILMING", 5)]),
+    ("Code", [("HTML & CSS", 5), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
+              ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("Git", 4)]),
+    ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
+             ("CapCut", 5), ("Color grading", 4), ("Sound design", 3)]),
+    ("Capture", [("Cinematic framing", 4), ("Camera movement", 4), ("Drone shots", 3),
+                 ("Natural light", 4), ("Storyboarding", 3), ("Phone filming", 5)]),
 ]
 
-HEADINGS = ["SNAKE.EXE", "CONTACT.EXE"]  # ANALYSIS.EXE is drawn by scripts/stats.py
+FOOTER = "Thanks for stopping by"
 
-# --------------------------------------------------------------- PIXELS --
+# --------------------------------------------------------------- THEME --
 
-W = 840  # matches the README column on desktop, so pixels land 1:1
-WHITE, BLACK = "#fff", "#000"
+W = 840  # the README column on desktop, so everything lands 1:1
+ACCENT = "#c6ff3d"  # lime, the one color — same as the portfolio
 
-FONT = {
-    "A": [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-    "B": ["####.", "#...#", "#...#", "####.", "#...#", "#...#", "####."],
-    "C": [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###."],
-    "D": ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
-    "E": ["#####", "#....", "#....", "####.", "#....", "#....", "#####"],
-    "F": ["#####", "#....", "#....", "####.", "#....", "#....", "#...."],
-    "G": [".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".####"],
-    "H": ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-    "I": [".###.", "..#..", "..#..", "..#..", "..#..", "..#..", ".###."],
-    "J": ["..###", "...#.", "...#.", "...#.", "...#.", "#..#.", ".##.."],
-    "K": ["#...#", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "#...#"],
-    "L": ["#....", "#....", "#....", "#....", "#....", "#....", "#####"],
-    "M": ["#...#", "##.##", "#.#.#", "#.#.#", "#...#", "#...#", "#...#"],
-    "N": ["#...#", "#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#"],
-    "O": [".###.", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
-    "P": ["####.", "#...#", "#...#", "####.", "#....", "#....", "#...."],
-    "Q": [".###.", "#...#", "#...#", "#...#", "#.#.#", "#..#.", ".##.#"],
-    "R": ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#"],
-    "S": [".####", "#....", "#....", ".###.", "....#", "....#", "####."],
-    "T": ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
-    "U": ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
-    "V": ["#...#", "#...#", "#...#", "#...#", "#...#", ".#.#.", "..#.."],
-    "W": ["#...#", "#...#", "#...#", "#.#.#", "#.#.#", "#.#.#", ".#.#."],
-    "X": ["#...#", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "#...#"],
-    "Y": ["#...#", "#...#", ".#.#.", "..#..", "..#..", "..#..", "..#.."],
-    "Z": ["#####", "....#", "...#.", "..#..", ".#...", "#....", "#####"],
-    "0": [".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."],
-    "1": ["..#..", ".##..", "..#..", "..#..", "..#..", "..#..", ".###."],
-    "2": [".###.", "#...#", "....#", "...#.", "..#..", ".#...", "#####"],
-    "3": ["####.", "....#", "....#", ".###.", "....#", "....#", "####."],
-    "4": ["...#.", "..##.", ".#.#.", "#..#.", "#####", "...#.", "...#."],
-    "5": ["#####", "#....", "####.", "....#", "....#", "#...#", ".###."],
-    "6": [".###.", "#....", "#....", "####.", "#...#", "#...#", ".###."],
-    "7": ["#####", "....#", "...#.", "..#..", ".#...", ".#...", ".#..."],
-    "8": [".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###."],
-    "9": [".###.", "#...#", "#...#", ".####", "....#", "....#", ".###."],
-    " ": ["....."] * 7,
-    ".": [".....", ".....", ".....", ".....", ".....", ".##..", ".##.."],
-    ",": [".....", ".....", ".....", ".....", ".##..", "..#..", ".#..."],
-    "-": [".....", ".....", ".....", "#####", ".....", ".....", "....."],
-    "—": [".....", ".....", ".....", "#####", ".....", ".....", "....."],
-    "/": ["....#", "...#.", "...#.", "..#..", ".#...", ".#...", "#...."],
-    ":": [".....", ".##..", ".##..", ".....", ".##..", ".##..", "....."],
-    "'": ["..#..", "..#..", ".#...", ".....", ".....", ".....", "....."],
-    "·": [".....", ".....", ".....", "..#..", ".....", ".....", "....."],
-    ">": [".#...", "..#..", "...#.", "....#", "...#.", "..#..", ".#..."],
-    "<": ["...#.", "..#..", ".#...", "#....", ".#...", "..#..", "...#."],
-    "_": [".....", ".....", ".....", ".....", ".....", ".....", "#####"],
-    "(": ["...#.", "..#..", ".#...", ".#...", ".#...", "..#..", "...#."],
-    ")": [".#...", "..#..", "...#.", "...#.", "...#.", "..#..", ".#..."],
-    "&": [".##..", "#..#.", "#.#..", ".#...", "#.#.#", "#..#.", ".##.#"],
-    "!": ["..#..", "..#..", "..#..", "..#..", "..#..", ".....", "..#.."],
-    "?": [".###.", "#...#", "....#", "...#.", "..#..", ".....", "..#.."],
-    "+": [".....", "..#..", "..#..", "#####", "..#..", "..#..", "....."],
-    "@": [".###.", "#...#", "#.###", "#.#.#", "#.###", "#....", ".###."],
-    "|": ["..#.."] * 7,
-    "%": ["##..#", "##..#", "...#.", "..#..", ".#...", "#..##", "#..##"],
-    "#": [".#.#.", ".#.#.", "#####", ".#.#.", "#####", ".#.#.", ".#.#."],
-    "=": [".....", ".....", "#####", ".....", "#####", ".....", "....."],
-    "[": [".###.", ".#...", ".#...", ".#...", ".#...", ".#...", ".###."],
-    "]": [".###.", "...#.", "...#.", "...#.", "...#.", "...#.", ".###."],
+THEMES = {
+    "dark": dict(bg="#0a0a0a", card="#0f0f0f", raised="#161616", border="#262626", text="#fafafa",
+                 muted="#a1a1a1", faint="#525252", grid="#1a1a1a", invert_bg="#fafafa", invert_fg="#0a0a0a",
+                 glow=0.16, accent_ink=ACCENT, heat=["#161616", "#333333", "#6b6b6b", "#bdbdbd", ACCENT]),
+    "light": dict(bg="#ffffff", card="#fafafa", raised="#ffffff", border="#e5e5e5", text="#0a0a0a",
+                  muted="#525252", faint="#a3a3a3", grid="#efefef", invert_bg="#0a0a0a", invert_fg="#fafafa",
+                  glow=0.32, accent_ink="#4d7c0f", heat=["#efefef", "#d4d4d4", "#8a8a8a", "#3a3a3a", "#9fd420"]),
 }
 
-ICONS = {
-    "code": [
-        "....#.....#....",
-        "...#.....#.....",
-        "..#......#..#..",
-        ".#......#....#.",
-        "#.......#.....#",
-        ".#.....#.....#.",
-        "..#....#....#..",
-        "...#..#........",
-        "....#.#........",
-    ],
-    "cut": [
-        ".##.......##.",
-        "#..#.....#..#",
-        "#..#.....#..#",
-        ".####...####.",
-        ".....#.#.....",
-        "......#......",
-        ".....#.#.....",
-        "....#...#....",
-        "...#.....#...",
-        "..#.......#..",
-    ],
-    "capture": [
-        "....####.......",
-        "###############",
-        "#.............#",
-        "#....#####..#.#",
-        "#...#.....#...#",
-        "#...#.....#...#",
-        "#...#.....#...#",
-        "#....#####....#",
-        "#.............#",
-        "###############",
-    ],
-}
+FONT_B64 = base64.b64encode((ROOT / "scripts" / "fonts" / "Geist.woff2").read_bytes()).decode()
+STYLE = (
+    "<style>"
+    f'@font-face{{font-family:Geist;src:url(data:font/woff2;base64,{FONT_B64}) format("woff2");font-weight:100 900}}'
+    '.s{font-family:Geist,Inter,"Segoe UI",Helvetica,Arial,sans-serif}'
+    ".m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}"
+    "</style>"
+)
 
-BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
+# ------------------------------------------------------------- HELPERS --
 
 
-def runs(cells, x0, y0, p):
-    """Merge a set of (col, row) cells into horizontal-run path data."""
-    by_row = {}
-    for c, r in cells:
-        by_row.setdefault(r, []).append(c)
-    d = []
-    for r, cols in by_row.items():
-        cols.sort()
-        start = prev = cols[0]
-        for c in cols[1:] + [None]:
-            if c is not None and c == prev + 1:
-                prev = c
-                continue
-            d.append(f"M{x0 + start * p:g} {y0 + r * p:g}h{(prev - start + 1) * p:g}v{p:g}h-{(prev - start + 1) * p:g}z")
-            if c is not None:
-                start = prev = c
-    return "".join(d)
+def esc(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def text_width(s, scale):
-    return len(s) * 6 * scale - scale
+def t(x, y, s, size, fill, weight=400, cls="s", anchor="start", ls=0.0, extra=""):
+    spacing = f' letter-spacing="{ls}"' if ls else ""
+    return (f'<text x="{x}" y="{y}" class="{cls}" font-size="{size}" font-weight="{weight}" fill="{fill}"'
+            f' text-anchor="{anchor}"{spacing}{extra}>{esc(s)}</text>')
 
 
-def text(s, x, y, scale, fill=WHITE, extra=""):
-    cells = []
-    for i, ch in enumerate(s.upper()):
-        glyph = FONT.get(ch, FONT["?"])
-        for r, row in enumerate(glyph):
-            for c, bit in enumerate(row):
-                if bit == "#":
-                    cells.append((i * 6 + c, r))
-    return f'<path fill="{fill}" d="{runs(cells, x, y, scale)}"{extra}/>'
+def width(s, size, mono=False):
+    """Rough advance width — good enough for laying out pills."""
+    return len(s) * size * (0.6 if mono else 0.515)
 
 
-def bitmap(rows, x, y, scale, fill=WHITE):
-    cells = [(c, r) for r, row in enumerate(rows) for c, bit in enumerate(row) if bit == "#"]
-    return f'<path fill="{fill}" d="{runs(cells, x, y, scale)}"/>'
+def label(x, y, s, th):
+    return t(x, y, s.upper(), 11, th["muted"], 500, "m", ls=1.4)
 
 
-def dither(fn, x0, y0, cols, rows, p, fill=WHITE):
-    """fn(col, row) -> brightness 0..1 (None = outside). Ordered 4x4 Bayer dithering."""
-    cells = []
-    for r in range(rows):
-        for c in range(cols):
-            b = fn(c, r)
-            if b is not None and b > (BAYER[r % 4][c % 4] + 0.5) / 16:
-                cells.append((c, r))
-    return f'<path fill="{fill}" d="{runs(cells, x0, y0, p)}"/>'
+def card(x, y, w, h, th, r=18, fill=None):
+    return (f'<rect x="{x + 0.5}" y="{y + 0.5}" width="{w - 1}" height="{h - 1}" rx="{r}" '
+            f'fill="{fill or th["card"]}" stroke="{th["border"]}"/>')
 
 
-def sphere(cx, cy, radius, p, light=(-0.55, -0.6, 0.58), clip=None):
-    lx, ly, lz = light
-    n = math.sqrt(lx * lx + ly * ly + lz * lz)
-    lx, ly, lz = lx / n, ly / n, lz / n
-    size = int(radius * 2 / p) + 1
-    x0, y0 = cx - radius, cy - radius
-
-    def fn(c, r):
-        px, py = x0 + (c + 0.5) * p, y0 + (r + 0.5) * p
-        if clip and not clip(px, py):
-            return None
-        dx, dy = (px - cx) / radius, (py - cy) / radius
-        d2 = dx * dx + dy * dy
-        if d2 > 1:
-            return None
-        dz = math.sqrt(1 - d2)
-        lit = max(0.0, dx * lx + dy * ly + dz * lz)
-        rim = 0.18 * (1 - dz) ** 3  # faint edge glow on the dark side
-        return min(1.0, lit ** 1.4 + rim)
-
-    return dither(fn, x0, y0, size, size, p)
+def pill(x, y, s, th, size=13, h=28, inverted=False, mono=False):
+    w = width(s, size, mono) + 24
+    bg, fg = (th["invert_bg"], th["invert_fg"]) if inverted else (th["raised"], th["text"])
+    return (f'<rect x="{x + 0.5}" y="{y + 0.5}" width="{w:.0f}" height="{h - 1}" rx="{h / 2}" fill="{bg}" stroke="{th["border"]}"/>'
+            + t(x + 12, y + h / 2 + size * 0.36, s, size, fg, 500, "m" if mono else "s")), w
 
 
-def stars(seed, count, w, h, avoid=None):
-    """Deterministic scatter of 1-2px stars; a few twinkle."""
-    out = []
-    s = seed
-    for i in range(count):
-        s = (s * 1103515245 + 12345) & 0x7FFFFFFF
-        x = s % w
-        s = (s * 1103515245 + 12345) & 0x7FFFFFFF
-        y = s % h
-        if avoid and avoid(x, y):
-            continue
-        size = 2 if i % 5 else 3
-        anim = ""
-        if i % 7 == 0:
-            anim = f'<animate attributeName="opacity" values="1;0.15;1" dur="{2 + i % 3}s" begin="{(i % 5) * 0.4}s" repeatCount="indefinite"/>'
-        out.append(f'<rect x="{x}" y="{y}" width="{size}" height="{size}" fill="{WHITE}">{anim}</rect>')
-    return "".join(out)
-
-
-def window(x, y, w, h, title, body_fill=BLACK):
-    """Retro OS window: white frame, white title bar with black pixel title and _ □ x."""
-    bar = 30
-    parts = [
-        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{body_fill}" stroke="{WHITE}" stroke-width="3"/>',
-        f'<rect x="{x}" y="{y}" width="{w}" height="{bar}" fill="{WHITE}"/>',
-        text(title, x + 12, y + 8, 2, BLACK),
-    ]
-    for i, glyph in enumerate(["_", "□", "x"]):
-        bx = x + w - 3 * 24 - 6 + i * 24
-        parts.append(f'<rect x="{bx}" y="{y + 6}" width="18" height="18" fill="{WHITE}" stroke="{BLACK}" stroke-width="2"/>')
-        if glyph == "_":
-            parts.append(f'<rect x="{bx + 5}" y="{y + 17}" width="8" height="2" fill="{BLACK}"/>')
-        elif glyph == "□":
-            parts.append(f'<rect x="{bx + 5}" y="{y + 11}" width="8" height="8" fill="none" stroke="{BLACK}" stroke-width="2"/>')
-        else:
-            parts.append(text("X", bx + 4, y + 8, 2, BLACK))
-    return "".join(parts)
-
-
-def svg(w, h, body, label):
+def svg(w, h, body, label_text, th, defs=""):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
-        f'shape-rendering="crispEdges" role="img" aria-label="{label}">'
-        f'<rect width="{w}" height="{h}" fill="{BLACK}"/>{body}</svg>'
+        f'role="img" aria-label="{esc(label_text)}"><defs>{STYLE}{defs}</defs>{body}</svg>'
     )
 
 
-def blink(dur="1.06s"):
-    return f'<animate attributeName="opacity" values="1;0" dur="{dur}" repeatCount="indefinite" calcMode="discrete"/>'
+def icon(kind, cx, cy, color, s=1.0):
+    """Tiny line icons for the three crafts, centered on (cx, cy)."""
+    sw = 2.2 * s
+    if kind == "Code":
+        return (f'<path d="M{cx - 8 * s} {cy - 9 * s}l-9 {9 * s} 9 {9 * s}M{cx + 8 * s} {cy - 9 * s}l9 {9 * s}-9 {9 * s}'
+                f'M{cx + 3 * s} {cy - 12 * s}l-6 {24 * s}" stroke="{color}" stroke-width="{sw}" fill="none" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>')
+    if kind == "Cut":  # an edit timeline: clips and a playhead
+        return (f'<g fill="{color}"><rect x="{cx - 17 * s}" y="{cy - 9 * s}" width="{14 * s}" height="{6 * s}" rx="{2 * s}"/>'
+                f'<rect x="{cx - 1 * s}" y="{cy - 9 * s}" width="{18 * s}" height="{6 * s}" rx="{2 * s}"/>'
+                f'<rect x="{cx - 17 * s}" y="{cy + 2 * s}" width="{22 * s}" height="{6 * s}" rx="{2 * s}" opacity=".55"/></g>'
+                f'<path d="M{cx + 4 * s} {cy - 14 * s}v{27 * s}" stroke="{color}" stroke-width="{sw}" stroke-linecap="round"/>')
+    return (f'<rect x="{cx - 17 * s}" y="{cy - 10 * s}" width="{34 * s}" height="{22 * s}" rx="{5 * s}" stroke="{color}" '
+            f'stroke-width="{sw}" fill="none"/><circle cx="{cx}" cy="{cy + 1 * s}" r="{6 * s}" stroke="{color}" '
+            f'stroke-width="{sw}" fill="none"/><path d="M{cx - 7 * s} {cy - 10 * s}l3 {-4 * s}h{8 * s}l3 {4 * s}" '
+            f'stroke="{color}" stroke-width="{sw}" fill="none" stroke-linejoin="round"/>')
 
 
 # ------------------------------------------------------------- SCENES --
 
-def header():
-    h = 380
-    wx, wy, ww, wh = 150, 70, 470, 250
-    inside = lambda px, py: not (wx - 4 <= px <= wx + ww + 4 and wy - 4 <= py <= wy + wh + 4)
-    body = [
-        stars(7, 140, W, h, avoid=lambda x, y: not inside(x, y)),
-        sphere(705, 300, 190, 4, clip=inside),
-        sphere(78, 330, 46, 3, light=(0.6, -0.5, 0.6), clip=inside),
-        window(wx, wy, ww, wh, "GLYKA_MARIE.EXE"),
+def hero(th):
+    h = 360
+    defs = (
+        f'<pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">'
+        f'<path d="M28 0H0V28" fill="none" stroke="{th["grid"]}"/></pattern>'
+        f'<radialGradient id="fade" cx="35%" cy="40%" r="75%"><stop offset="0" stop-color="#fff"/>'
+        f'<stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>'
+        f'<mask id="gm"><rect width="{W}" height="{h}" fill="url(#fade)"/></mask>'
+        f'<radialGradient id="glow" cx="80%" cy="18%" r="55%"><stop offset="0" stop-color="{ACCENT}" stop-opacity="{th["glow"]}"/>'
+        f'<stop offset="1" stop-color="{ACCENT}" stop-opacity="0"/></radialGradient>'
+        f'<linearGradient id="ink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{th["text"]}"/>'
+        f'<stop offset="1" stop-color="{th["muted"]}"/></linearGradient>'
+        f'<clipPath id="round"><rect width="{W}" height="{h}" rx="22"/></clipPath>'
+    )
+    body = [f'<g clip-path="url(#round)"><rect width="{W}" height="{h}" fill="{th["bg"]}"/>'
+            f'<rect width="{W}" height="{h}" fill="url(#grid)" mask="url(#gm)"/>'
+            f'<rect width="{W}" height="{h}" fill="url(#glow)"/></g>'
+            f'<rect x=".5" y=".5" width="{W - 1}" height="{h - 1}" rx="22" fill="none" stroke="{th["border"]}"/>']
+
+    # Status pill with a pulsing dot
+    sw = width(STATUS, 12.5) + 40
+    body.append(f'<rect x="36.5" y="36.5" width="{sw:.0f}" height="29" rx="14.5" fill="{th["raised"]}" stroke="{th["border"]}"/>')
+    body.append(f'<circle cx="52" cy="51" r="4" fill="{ACCENT}"/><circle cx="52" cy="51" r="4" fill="none" stroke="{ACCENT}">'
+                f'<animate attributeName="r" values="4;10" dur="2s" repeatCount="indefinite"/>'
+                f'<animate attributeName="opacity" values="0.8;0" dur="2s" repeatCount="indefinite"/></circle>')
+    body.append(t(64, 55.5, STATUS, 12.5, th["text"], 500))
+
+    # Name, tagline, craft pills
+    body.append(t(34, 140, NAME[0], 62, "url(#ink)", 600, ls=-2.6))
+    body.append(t(34, 204, NAME[1], 62, "url(#ink)", 600, ls=-2.6))
+    body.append(t(36, 246, TAGLINE[0], 18, th["muted"], 400))
+    body.append(t(36, 270, TAGLINE[1], 18, th["muted"], 400))
+    x = 36
+    for i, (craft, _) in enumerate(CRAFTS):
+        p, w = pill(x, 296, f"0{i + 1}  {craft}", th, size=13)
+        body.append(p)
+        x += w + 8
+
+    # Three tilted cards, like the portfolio's hero covers, gently floating
+    covers = [
+        ("Code", -12, (-78, 18), th["raised"], th["text"], th["border"]),
+        ("Cut", 5, (8, -10), th["invert_bg"], th["invert_fg"], th["invert_bg"]),
+        ("Capture", 15, (88, 26), ACCENT, "#0a0a0a", ACCENT),
     ]
-    y = wy + 52
-    for line in NAME:
-        body.append(text(line, wx + 26, y, 6))
-        y += 56
-    body.append(text(ROLE, wx + 26, y + 6, 2))
-    prompt = f"> {PLACE}"
-    body.append(text(prompt, wx + 26, y + 34, 2))
-    cx = wx + 26 + text_width(prompt, 2) + 6
-    body.append(f'<rect x="{cx}" y="{y + 34}" width="10" height="14" fill="{WHITE}">{blink()}</rect>')
-    # Loading bar that fills, holds, and starts over
-    bx, by, bw = wx + 26, wy + wh - 34, ww - 52
-    body.append(f'<rect x="{bx}" y="{by}" width="{bw}" height="16" fill="none" stroke="{WHITE}" stroke-width="2"/>')
-    steps = ";".join(str(round((bw - 8) * i / 12)) for i in list(range(13)) + [12, 12, 0])
-    body.append(f'<rect x="{bx + 4}" y="{by + 4}" width="0" height="8" fill="{WHITE}">'
-                f'<animate attributeName="width" values="{steps}" dur="4.8s" repeatCount="indefinite" calcMode="discrete"/></rect>')
-    return svg(W, h, "".join(body), "Glyka Marie Amahan — developer, editor, videographer, Cebu PH")
-
-
-def about():
-    line_h = 26
-    h = 30 + 28 + len(ABOUT) * line_h + 50
-    body = [window(1, 1, W - 2, h - 2, "ABOUT.TXT — TERMINAL")]
-    t = 0.3
-    y = 30 + 26
-    defs = []
-    for i, (line, out) in enumerate(ABOUT):
-        x = 28 if not out else 52
-        width = text_width(line, 2) + 2
-        n = max(1, len(line))
-        step = 0.035 if not out else 0.018
-        dur = n * step
-        vals = ";".join(str(round(width * k / n)) for k in range(n + 1))
-        defs.append(
-            f'<clipPath id="l{i}"><rect x="{x}" y="{y - 2}" height="20" width="0">'
-            f'<animate attributeName="width" values="{vals}" begin="{t:.2f}s" dur="{dur:.2f}s" fill="freeze" calcMode="discrete"/>'
-            f"</rect></clipPath>"
+    cx0, cy0 = 660, 186
+    for i, (craft, rot, (dx, dy), fill, ink, stroke) in enumerate(covers):
+        cx, cy = cx0 + dx, cy0 + dy
+        body.append(
+            f'<g transform="rotate({rot} {cx} {cy})"><g>'
+            f'<animateTransform attributeName="transform" type="translate" values="0 0;0 -7;0 0" dur="{6 + i}s" '
+            f'begin="{i * 0.8}s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>'
+            f'<rect x="{cx - 62}" y="{cy - 80}" width="124" height="160" rx="16" fill="#000" opacity=".18" transform="translate(4 8)"/>'
+            f'<rect x="{cx - 62 + 0.5}" y="{cy - 80 + 0.5}" width="123" height="159" rx="16" fill="{fill}" stroke="{stroke}"/>'
+            + t(cx - 48, cy - 56, f"0{i + 1}", 11, ink, 500, "m", ls=1)
+            + icon(craft, cx, cy - 6, ink, 1.15)
+            + t(cx - 48, cy + 62, craft.upper(), 12, ink, 600, "m", ls=1.6)
+            + "</g></g>"
         )
-        body.append(f'<g clip-path="url(#l{i})">{text(line, x, y, 2, WHITE if out else "#9a9a9a")}</g>')
-        t += dur + (0.15 if not out else 0.35)
-        y += line_h
-    cursor_x = 28
-    body.append(text(">", cursor_x, y, 2, "#9a9a9a"))
-    body.append(f'<rect x="{cursor_x + 18}" y="{y}" width="10" height="14" fill="{WHITE}" opacity="0">'
-                f'<set attributeName="opacity" to="1" begin="{t:.2f}s"/>'
-                f'<animate attributeName="visibility" values="visible;hidden" dur="1.06s" begin="{t:.2f}s" repeatCount="indefinite" calcMode="discrete"/></rect>')
-    return svg(W, h, f"<defs>{''.join(defs)}</defs>" + "".join(body), "About Glyka: developer, editor and videographer from Cebu, Philippines")
+    return svg(W, h, "".join(body), "Glyka Marie Amahan — developer, editor and videographer based in Cebu, Philippines", th, defs)
 
 
-def filmstrip():
-    h = 230
+def about(th):
+    gap = 12
+    top_h, row_h = 222, 118
+    h = top_h + gap + row_h
+    rw = 300
+    lw = W - rw - gap
     body = []
-    # Sprocket holes that run past like film through a gate
-    holes = "".join(f'<rect x="{x}" y="0" width="14" height="10" fill="{WHITE}"/>' for x in range(0, W + 40, 28))
-    for y in (14, h - 24):
-        body.append(f'<g transform="translate(0 {y})"><g>{holes}'
-                    f'<animateTransform attributeName="transform" type="translate" values="0 0;-28 0" dur="0.6s" repeatCount="indefinite"/></g></g>')
-    frames = [("01", "CODE", "code"), ("02", "CUT", "cut"), ("03", "CAPTURE", "capture")]
-    fw, gap = 252, 18
-    x = (W - (fw * 3 + gap * 2)) // 2
-    for i, (num, label, icon) in enumerate(frames):
-        fy, fh = 38, h - 76
-        body.append(f'<rect x="{x}" y="{fy}" width="{fw}" height="{fh}" fill="{BLACK}" stroke="{WHITE}" stroke-width="3"/>')
-        rows = ICONS[icon]
-        scale = 6
-        iw, ih = len(rows[0]) * scale, len(rows) * scale
-        # A quick flicker per frame, staggered (discrete: each value holds until the next keyTime)
-        at = 0.3 + i * 0.2
-        body.append(f'<g>{bitmap(rows, x + (fw - iw) // 2, fy + 18, scale)}'
-                    f'<animate attributeName="opacity" values="1;0.2;1" keyTimes="0;{at:.2f};{at + 0.04:.2f}" dur="3s" repeatCount="indefinite" calcMode="discrete"/></g>')
-        cap = f"{num} {label}"
-        body.append(text(cap, x + (fw - text_width(cap, 3)) // 2, fy + 18 + ih + 18, 3))
-        x += fw + gap
-    return svg(W, h, "".join(body), "Three crafts: code, cut, capture")
+
+    # About paragraph — first line full ink, the rest muted
+    body.append(card(0, 0, lw, top_h, th))
+    body.append(label(26, 38, "About", th))
+    for i, line in enumerate(ABOUT):
+        body.append(t(26, 82 + i * 30, line, 22, th["text"] if i < 2 else th["muted"], 500, ls=-0.4))
+
+    # Based in
+    ch = (top_h - gap) / 2
+    body.append(card(lw + gap, 0, rw, ch, th))
+    body.append(label(lw + gap + 22, 32, "Based in", th))
+    body.append(t(lw + gap + 22, 62, BASED_IN[0], 19, th["text"], 600, ls=-0.3))
+    body.append(t(lw + gap + 22, 83, BASED_IN[1], 12.5, th["muted"]))
+
+    # Currently learning, as pills
+    y2 = ch + gap
+    body.append(card(lw + gap, y2, rw, ch, th))
+    body.append(label(lw + gap + 22, y2 + 32, "Currently learning", th))
+    x, py = lw + gap + 22, y2 + 46
+    for item in LEARNING:
+        p, w = pill(x, py, item, th, size=12, h=24)
+        if x + w > lw + gap + rw - 18:
+            x, py = lw + gap + 22, py + 30
+            p, w = pill(x, py, item, th, size=12, h=24)
+        body.append(p)
+        x += w + 6
+
+    # Three craft cards
+    cw = (W - gap * 2) / 3
+    y = top_h + gap
+    for i, (craft, line) in enumerate(CRAFTS):
+        x = i * (cw + gap)
+        body.append(card(x, y, cw, row_h, th))
+        body.append(t(x + 22, y + 32, f"0{i + 1}", 11, th["faint"], 500, "m", ls=1))
+        body.append(icon(craft, x + cw - 40, y + 34, th["accent_ink"] if i == 2 else th["text"], 0.9))
+        body.append(t(x + 22, y + 72, craft, 22, th["text"], 600, ls=-0.5))
+        body.append(t(x + 22, y + 96, line, 13.5, th["muted"]))
+    return svg(W, h, "".join(body), "About: " + " ".join(ABOUT), th)
 
 
-def stack():
-    cols = len(STACK)
-    pad, gap = 24, 16
-    cw = (W - pad * 2 - gap * (cols - 1)) // cols
-    item_h = 44
-    rows = max(len(items) for _, items in STACK)
-    h = 30 + 30 + 34 + rows * item_h + 20
-    body = [window(1, 1, W - 2, h - 2, "STACK.EXE — TOOLS & LEVELS")]
-    seg, seg_gap, segs = 20, 4, 10
-    for ci, (cat, items) in enumerate(STACK):
-        x = pad + ci * (cw + gap)
-        y = 30 + 26
-        body.append(text(f"[{cat}]", x, y, 3))
-        body.append(f'<rect x="{x}" y="{y + 28}" width="{cw}" height="2" fill="{WHITE}"/>')
-        y += 46
-        for ii, (tool, level) in enumerate(items):
-            body.append(text(tool, x, y, 2))
-            by = y + 20
-            filled = level * 2
-            for s in range(segs):
-                sx = x + s * (seg + seg_gap)
-                body.append(f'<rect x="{sx}" y="{by}" width="{seg}" height="10" fill="none" stroke="#5a5a5a" stroke-width="1"/>')
-            begin = 0.4 + ci * 0.25 + ii * 0.08
-            for s in range(filled):
-                sx = x + s * (seg + seg_gap)
-                body.append(f'<rect x="{sx}" y="{by}" width="{seg}" height="10" fill="{WHITE}" opacity="0">'
-                            f'<set attributeName="opacity" to="1" begin="{begin + s * 0.05:.2f}s"/></rect>')
-            y += item_h
-    return svg(W, h, "".join(body), "Tech stack: code, editing and filming tools with skill levels")
+def stack(th):
+    gap, pad = 12, 22
+    cw = (W - gap * 2) / 3
+    # Lay out pills first to know each card's height
+    layouts, tallest = [], 0
+    for craft, tools in STACK:
+        x, y, items = pad, 104, []
+        for tool, level in tools:
+            w = width(tool, 13) + 24
+            if x + w > cw - pad:
+                x, y = pad, y + 36
+            items.append((x, y, tool, level))
+            x += w + 6
+        layouts.append(items)
+        tallest = max(tallest, y + 10 + pad)  # last pill row spans y-18 .. y+10
+    head = 64
+    h = head + tallest + 2
+
+    body = [t(2, 28, "Tech stack", 24, th["text"], 600, ls=-0.6),
+            t(2, 50, "What I build, cut and shoot with.", 14, th["muted"])]
+    lx = W - 2
+    legend = "Daily driver"
+    body.append(t(lx, 46, legend, 12, th["muted"], anchor="end"))
+    body.append(f'<rect x="{lx - width(legend, 12) - 22}" y="35" width="14" height="14" rx="7" fill="{th["invert_bg"]}"/>')
+
+    for i, ((craft, _), items) in enumerate(zip(STACK, layouts)):
+        x0 = i * (cw + gap)
+        body.append(card(x0, head, cw, tallest, th))
+        body.append(t(x0 + pad, head + 32, f"0{i + 1}", 11, th["faint"], 500, "m", ls=1))
+        body.append(icon(craft, x0 + cw - 40, head + 32, th["accent_ink"] if i == 2 else th["text"], 0.8))
+        body.append(t(x0 + pad, head + 66, craft, 22, th["text"], 600, ls=-0.5))
+        for j, (px, py, tool, level) in enumerate(items):
+            p, _ = pill(x0 + px, head + py - 18, tool, th, size=13, inverted=level == 5)
+            body.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{0.15 + i * 0.2 + j * 0.06:.2f}s" fill="freeze"/>{p}</g>')
+    return svg(W, h, "".join(body), "Tech stack: " + "; ".join(f"{c}: " + ", ".join(n for n, _ in tl) for c, tl in STACK), th)
 
 
-def heading(title):
-    h = 40
-    body = window(1, 1, W - 2, 36, title)
-    return svg(W, h, body, title)
-
-
-def footer():
-    h = 200
-
-    def ground(c, r):
-        # Dithered horizon: brightness rises toward the bottom, with a slow wave
-        y = r / 49
-        wave = 0.08 * math.sin(c / 14) + 0.05 * math.sin(c / 5.3)
-        return max(0.0, (y - 0.35 + wave) * 1.6)
-
-    body = [
-        stars(3, 60, W, 90),
-        dither(ground, 0, 0, W // 4, 50, 4),
-    ]
-    msg = "THANKS FOR STOPPING BY"
-    sub = "GLYKA.EXE · SESSION END"
-    body.append(f'<rect x="{(W - text_width(msg, 3)) // 2 - 20}" y="52" width="{text_width(msg, 3) + 40}" height="70" fill="{BLACK}" stroke="{WHITE}" stroke-width="3"/>')
-    body.append(text(msg, (W - text_width(msg, 3)) // 2, 64, 3))
-    body.append(text(sub, (W - text_width(sub, 2)) // 2, 98, 2, "#9a9a9a"))
-    return svg(W, h, "".join(body), "Thanks for stopping by")
+def footer(th):
+    h = 64
+    defs = (f'<linearGradient id="line" x1="0" x2="1"><stop offset="0" stop-color="{th["border"]}" stop-opacity="0"/>'
+            f'<stop offset=".5" stop-color="{th["faint"]}"/><stop offset="1" stop-color="{th["border"]}" stop-opacity="0"/></linearGradient>')
+    body = (f'<rect x="0" y="12" width="{W}" height="1" fill="url(#line)"/>'
+            f'<circle cx="{W / 2 - width(FOOTER, 13) / 2 - 12}" cy="43" r="3.5" fill="{ACCENT}"/>'
+            + t(W / 2 + 6, 47, FOOTER, 13, th["muted"], 500, anchor="middle"))
+    return svg(W, h, body, FOOTER, th, defs)
 
 
 def main():
-    out = Path(__file__).resolve().parent.parent / "assets"
+    out = ROOT / "assets"
     out.mkdir(exist_ok=True)
-    files = {
-        "header.svg": header(),
-        "about.svg": about(),
-        "crafts.svg": filmstrip(),
-        "stack.svg": stack(),
-        "footer.svg": footer(),
-    }
-    for title in HEADINGS:
-        files[f"heading-{title.split('.')[0].lower()}.svg"] = heading(title)
-    for name, content in files.items():
-        (out / name).write_text(content, encoding="utf-8")
-        print(f"{name:24} {len(content) / 1024:6.1f} KB")
+    for name, fn in {"hero": hero, "about": about, "stack": stack, "footer": footer}.items():
+        for theme, th in THEMES.items():
+            content = fn(th)
+            (out / f"{name}-{theme}.svg").write_text(content, encoding="utf-8")
+            print(f"{name}-{theme}.svg".ljust(24), f"{len(content) / 1024:6.1f} KB")
 
 
 if __name__ == "__main__":

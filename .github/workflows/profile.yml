@@ -1,6 +1,5 @@
-# Daily: draws the black-and-white contribution snake (dark + light) and the
-# ANALYSIS.EXE stats window from the GitHub API, then publishes both to the
-# `output` branch, which the README links to.
+# Draws the Activity card and the contribution snake (light + dark) daily and
+# publishes them to the `output` branch, which the README links to.
 name: Profile
 
 on:
@@ -21,17 +20,18 @@ jobs:
       - uses: actions/checkout@v5
 
       # Before the snake: its container creates dist/ as root, which this step can't write into
-      - name: Draw ANALYSIS.EXE
-        run: python scripts/stats.py ${{ github.repository_owner }} dist/analysis.svg
+      - name: Draw the Activity card (light + dark)
+        run: python scripts/stats.py ${{ github.repository_owner }} dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Same greys as the Activity heatmap; the busiest days are lime
       - uses: Platane/snk@v3
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
-            dist/snake-dark.svg?color_snake=#ffffff&color_dots=#161616,#3a3a3a,#6b6b6b,#a3a3a3,#ffffff
-            dist/snake-light.svg?color_snake=#000000&color_dots=#ebebeb,#bdbdbd,#8a8a8a,#4f4f4f,#000000
+            dist/snake-dark.svg?color_snake=#c6ff3d&color_dots=#161616,#333333,#6b6b6b,#bdbdbd,#c6ff3d
+            dist/snake-light.svg?color_snake=#0a0a0a&color_dots=#efefef,#d4d4d4,#8a8a8a,#3a3a3a,#9fd420
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:
