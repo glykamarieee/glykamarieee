@@ -5,18 +5,18 @@
 -->
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg?v=48612296" />
-  <img src="assets/hero-light.svg?v=e5c87cf0" width="100%" alt="Glyka Marie Amahan — developer, editor and videographer based in Cebu, Philippines. Available for projects." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg?v=708f8787" />
+  <img src="assets/hero-light.svg?v=8771dc91" width="100%" alt="Glyka Marie Amahan — developer, editor and videographer based in Cebu, Philippines. Available for projects." />
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=bead5823" />
-  <img src="assets/about-light.svg?v=d3805091" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, Blender, motion graphics and color grading." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=fbac3bb3" />
+  <img src="assets/about-light.svg?v=0b6c1227" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, Blender and motion graphics." />
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=1abda61a" />
-  <img src="assets/stack-light.svg?v=62fd1e30" width="100%" alt="Tech stack — Code: HTML & CSS, JavaScript, TypeScript, React, Tailwind CSS, PHP, Java, C++, C, Python, MySQL. Cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design. Capture: cinematic framing, composition, camera movement, B-roll, phone filming. Tools: VS Code, Figma, Git, GitHub, Canva, Photoshop, Lightroom, Notion, XAMPP, Vercel." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg?v=c7298f9d" />
+  <img src="assets/stack-light.svg?v=0fd34afc" width="100%" alt="Tech stack — Code: frontend (HTML & CSS, JavaScript, TypeScript, React, Tailwind CSS), languages (PHP, Python, Java, C, C++), database (MySQL). Cut: software (Premiere Pro, DaVinci Resolve, CapCut), techniques (color grading, sound design). Capture: cinematic framing, composition, camera movement, B-roll, phone filming. Tools: development (VS Code, Git, GitHub, XAMPP, Vercel), design (Figma, Canva, Photoshop, Lightroom), workflow (Notion)." />
 </picture>
 
 <picture>
@@ -41,6 +41,6 @@
 </p>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/footer-dark.svg?v=818a9ff1" />
-  <img src="assets/footer-light.svg?v=cb41941b" width="100%" alt="Thanks for stopping by" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/footer-dark.svg?v=095faa8b" />
+  <img src="assets/footer-light.svg?v=4d8a02ee" width="100%" alt="Thanks for stopping by" />
 </picture>

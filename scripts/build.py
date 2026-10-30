@@ -25,7 +25,8 @@ ABOUT = [  # the about card, line by line
     "staying for.",
 ]
 BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
-LEARNING = ["After Effects", "Blender", "Motion graphics", "Color grading"]
+# Things still being learned live only here, never also in STACK/TOOLS
+LEARNING = ["After Effects", "Blender", "Motion graphics"]
 
 CRAFTS = [  # (title, one-liner)
     ("Code", "Interfaces that feel alive."),
@@ -33,19 +34,43 @@ CRAFTS = [  # (title, one-liner)
     ("Capture", "Shots worth keeping."),
 ]
 
-# (craft, [(tool, level 1-5)]) — level 5 tools are highlighted as daily drivers
+# (craft, [(group, [skills])]) — every item appears once across STACK, TOOLS and LEARNING
 STACK = [
-    ("Code", [("HTML & CSS", 4), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
-              ("Tailwind CSS", 4), ("PHP", 3), ("Java", 3), ("C++", 3), ("C", 3),
-              ("Python", 3), ("MySQL", 3)]),
-    ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
-             ("CapCut", 4), ("Color grading", 4), ("Sound design", 3)]),
-    ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
-                 ("B-roll", 4), ("Phone filming", 4)]),
+    ("Code", [
+        ("Frontend", ["HTML & CSS", "JavaScript", "TypeScript", "React", "Tailwind CSS"]),
+        ("Languages", ["PHP", "Python", "Java", "C", "C++"]),
+        ("Database", ["MySQL"]),
+    ]),
+    ("Cut", [
+        ("Software", ["Premiere Pro", "DaVinci Resolve", "CapCut"]),
+        ("Techniques", ["Color grading", "Sound design"]),
+    ]),
+    ("Capture", [
+        ("Techniques", ["Cinematic framing", "Composition", "Camera movement", "B-roll", "Phone filming"]),
+    ]),
 ]
 
-# The apps behind all three crafts — a full-width card under the stack
-TOOLS = ["VS Code", "Figma", "Git", "GitHub", "Canva", "Photoshop", "Lightroom", "Notion", "XAMPP", "Vercel"]
+# The apps behind all three crafts — a full-width card under the stack, one column per group
+TOOLS = [
+    ("Development", ["VS Code", "Git", "GitHub", "XAMPP", "Vercel"]),
+    ("Design", ["Figma", "Canva", "Photoshop", "Lightroom"]),
+    ("Workflow", ["Notion"]),
+]
+
+
+def _check_unique():
+    seen = {}
+    for where, groups in [(c, g) for c, g in STACK] + [("Tools", TOOLS)]:
+        for _, items in groups:
+            for item in items:
+                seen.setdefault(item, []).append(where)
+    for item in LEARNING:
+        seen.setdefault(item, []).append("Learning")
+    repeats = {k: v for k, v in seen.items() if len(v) > 1}
+    assert not repeats, f"listed more than once: {repeats}"
+
+
+_check_unique()
 
 FOOTER = "Thanks for stopping by"
 
@@ -87,7 +112,10 @@ def t(x, y, s, size, fill, weight=400, cls="s", anchor="start", ls=0.0, extra=""
 
 def width(s, size, mono=False):
     """Rough advance width — good enough for laying out pills."""
-    return len(s) * size * (0.6 if mono else 0.53)
+    if mono:
+        return len(s) * size * 0.6
+    em = sum(0.66 if c.isupper() else 0.6 if c.isdigit() else 0.28 if c in " .,'|-" else 0.52 for c in s)
+    return em * size
 
 
 def label(x, y, s, th):
@@ -251,40 +279,56 @@ def about(th):
 def stack(th):
     gap, pad = 12, 22
     cw = (W - gap * 2) / 3
-    # Lay out pills first to know each card's height
-    layouts, tallest = [], 0
-    for craft, tools in STACK:
-        x, y, items = pad, 104, []
-        for tool, level in tools:
-            w = width(tool, 13) + 24
-            if x + w > cw - pad:
-                x, y = pad, y + 36
-            items.append((x, y, tool, level))
-            x += w + 6
-        layouts.append(items)
-        tallest = max(tallest, y + 10 + pad)  # last pill row spans y-18 .. y+10
     head = 64
+    pill_h, row, label_h, group_gap = 28, 34, 22, 16
 
-    # Tools: one full-width card, title on the left, pills flowing on the right
-    tools_x0, tools_w = 170, W - 170 - pad
-    x, y, tool_items = 0, 0, []
-    for tool in TOOLS:
-        w = width(tool, 13) + 24
-        if x + w > tools_w:
-            x, y = 0, y + 36
-        tool_items.append((x, y, tool))
-        x += w + 6
+    def flow(groups, x0, y0, avail):
+        """Place each group's small label, then its pills, wrapping within `avail`.
+        Returns ([(kind, x, y, text)], bottom y)."""
+        out, y = [], y0
+        for name, items in groups:
+            out.append(("label", x0, y + 10, name))
+            x, y = x0, y + label_h
+            for item in items:
+                w = width(item, 13) + 24
+                if x > x0 and x + w > x0 + avail:
+                    x, y = x0, y + row
+                out.append(("pill", x, y, item))
+                x += w + 6
+            y += pill_h + group_gap
+        return out, y - group_gap
+
+    # Craft cards: title block, then the groups
+    layouts, tallest = [], 0
+    for _, groups in STACK:
+        items, bottom = flow(groups, pad, 90, cw - pad * 2)
+        layouts.append(items)
+        tallest = max(tallest, bottom + pad)
+
+    # Tools: full width; title on the left, one column per group
     tools_y = head + tallest + gap
-    tools_h = max(104, y + 28 + pad * 2)
+    col_x0 = 170
+    col_w = (W - col_x0 - pad - gap * (len(TOOLS) - 1)) / len(TOOLS)
+    tool_cols, tools_bottom = [], 0
+    for k, group in enumerate(TOOLS):
+        items, bottom = flow([group], col_x0 + k * (col_w + gap), 26, col_w)
+        tool_cols.append(items)
+        tools_bottom = max(tools_bottom, bottom)
+    tools_h = max(104, tools_bottom + pad)
     h = tools_y + tools_h + 2
+
+    def draw(items, ox, oy, begin):
+        parts = []
+        for j, (kind, x, y, text) in enumerate(items):
+            if kind == "label":
+                parts.append(label(ox + x, oy + y, text, th))
+            else:
+                p, _ = pill(ox + x, oy + y, text, th, size=13)
+                parts.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{begin + j * 0.05:.2f}s" fill="freeze"/>{p}</g>')
+        return parts
 
     body = [t(2, 28, "Tech stack", 24, th["text"], 600, ls=-0.6),
             t(2, 50, "What I build, cut and shoot with.", 14, th["muted"])]
-    if any(level == 5 for _, tools in STACK for _, level in tools):  # legend only when something is highlighted
-        lx = W - 2
-        legend = "Daily driver"
-        body.append(t(lx, 46, legend, 12, th["muted"], anchor="end"))
-        body.append(f'<rect x="{lx - width(legend, 12) - 22}" y="35" width="14" height="14" rx="7" fill="{th["invert_bg"]}"/>')
 
     for i, ((craft, _), items) in enumerate(zip(STACK, layouts)):
         x0 = i * (cw + gap)
@@ -292,21 +336,17 @@ def stack(th):
         body.append(t(x0 + pad, head + 32, f"0{i + 1}", 11, th["faint"], 500, "m", ls=1))
         body.append(icon(craft, x0 + cw - 40, head + 32, th["accent_ink"] if i == 2 else th["text"], 0.8))
         body.append(t(x0 + pad, head + 66, craft, 22, th["text"], 600, ls=-0.5))
-        for j, (px, py, tool, level) in enumerate(items):
-            p, _ = pill(x0 + px, head + py - 18, tool, th, size=13, inverted=level == 5)
-            body.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{0.15 + i * 0.2 + j * 0.06:.2f}s" fill="freeze"/>{p}</g>')
+        body += draw(items, x0, head, 0.15 + i * 0.2)
 
     body.append(card(0, tools_y, W, tools_h, th))
     body.append(t(pad, tools_y + 32, f"0{len(STACK) + 1}", 11, th["faint"], 500, "m", ls=1))
     body.append(t(pad, tools_y + 66, "Tools", 22, th["text"], 600, ls=-0.5))
     body.append(icon("Tools", 120, tools_y + 52, th["text"], 0.8))
-    rows_h = tool_items[-1][1] + 28 if tool_items else 0
-    ty = tools_y + (tools_h - rows_h) / 2  # pills centered vertically in the card
-    for j, (px, py, tool) in enumerate(tool_items):
-        p, _ = pill(tools_x0 + px, ty + py, tool, th, size=13)
-        body.append(f'<g opacity="0"><set attributeName="opacity" to="1" begin="{0.8 + j * 0.05:.2f}s" fill="freeze"/>{p}</g>')
+    for k, items in enumerate(tool_cols):
+        body += draw(items, 0, tools_y, 0.8 + k * 0.15)
 
-    summary = "; ".join(f"{c}: " + ", ".join(n for n, _ in tl) for c, tl in STACK) + "; Tools: " + ", ".join(TOOLS)
+    describe = lambda groups: "; ".join(f"{g}: " + ", ".join(items) for g, items in groups)
+    summary = " | ".join(f"{c} — {describe(groups)}" for c, groups in STACK) + f" | Tools — {describe(TOOLS)}"
     return svg(W, h, "".join(body), "Tech stack: " + summary, th)
 
 
