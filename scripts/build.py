@@ -25,7 +25,7 @@ ABOUT = [  # the about card, line by line
     "staying for.",
 ]
 BASED_IN = ("Cebu, Philippines", "GMT+8 · open to remote work")
-LEARNING = ["After Effects", "Motion graphics", "Color grading"]
+LEARNING = ["After Effects", "Blender", "Motion graphics", "Color grading"]
 
 CRAFTS = [  # (title, one-liner)
     ("Code", "Interfaces that feel alive."),

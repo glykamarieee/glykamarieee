@@ -10,8 +10,8 @@
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=2d02b43e" />
-  <img src="assets/about-light.svg?v=ddbcb349" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, motion graphics and color grading." />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg?v=bead5823" />
+  <img src="assets/about-light.svg?v=d3805091" width="100%" alt="About: I write the code, cut the film and frame the shot — so every scroll, edit and moment feels like a story worth staying for. Based in Cebu, Philippines. Currently learning After Effects, Blender, motion graphics and color grading." />
 </picture>
 
 <picture>
