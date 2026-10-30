@@ -30,14 +30,16 @@
 </picture>
 
 <p align="center">
-  <a href="mailto:glykamarie05@gmail.com"><img alt="Email" src="https://img.shields.io/badge/Email-0a0a0a?style=flat-square&logo=gmail&logoColor=white" height="26" /></a>
-  <!-- Add your links, then remove the comment markers:
-  <a href="https://instagram.com/YOUR_HANDLE"><img alt="Instagram" src="https://img.shields.io/badge/Instagram-0a0a0a?style=flat-square&logo=instagram&logoColor=white" height="26" /></a>
-  <a href="https://linkedin.com/in/YOUR_HANDLE"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0a0a0a?style=flat-square&logo=linkedin&logoColor=white" height="26" /></a>
-  <a href="https://youtube.com/@YOUR_HANDLE"><img alt="YouTube" src="https://img.shields.io/badge/YouTube-0a0a0a?style=flat-square&logo=youtube&logoColor=white" height="26" /></a>
-  -->
-  <img alt="Available for projects" src="https://img.shields.io/badge/Available_for_projects-c6ff3d?style=flat-square" height="26" />
-  <img alt="Profile views" src="https://komarev.com/ghpvc/?username=glykamarieee&label=Views&color=0a0a0a&style=flat-square" height="26" />
+  <!-- Contact, most important first: email, phone, then socials -->
+  <a href="mailto:glykamarie05@gmail.com"><img alt="Email: glykamarie05@gmail.com" src="https://img.shields.io/badge/glykamarie05%40gmail.com-0a0a0a?style=flat-square&logo=gmail&logoColor=white" height="28" /></a>
+  <a href="tel:+639950356689"><img alt="Phone: +63 995 035 6689" src="https://img.shields.io/badge/%2B63%20995%20035%206689-0a0a0a?style=flat-square&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik02LjYgMTAuOGExNS4xIDE1LjEgMCAwIDAgNi42IDYuNmwyLjItMi4yYTEgMSAwIDAgMSAxLS4yNSAxMS40IDExLjQgMCAwIDAgMy42LjU3IDEgMSAwIDAgMSAxIDFWMjBhMSAxIDAgMCAxLTEgMUExNyAxNyAwIDAgMSAzIDRhMSAxIDAgMCAxIDEtMWgzLjVhMSAxIDAgMCAxIDEgMWMwIDEuMjUuMiAyLjQ1LjU3IDMuNTdhMSAxIDAgMCAxLS4yNSAxeiIvPjwvc3ZnPg%3D%3D" height="28" /></a>
+  <br />
+  <a href="https://www.instagram.com/glykamarieee/"><img alt="Instagram: @glykamarieee" src="https://img.shields.io/badge/%40glykamarieee-0a0a0a?style=flat-square&logo=instagram&logoColor=white" height="28" /></a>
+  <a href="https://www.instagram.com/gloxonaquest/"><img alt="Instagram: @gloxonaquest" src="https://img.shields.io/badge/%40gloxonaquest-0a0a0a?style=flat-square&logo=instagram&logoColor=white" height="28" /></a>
+  <a href="https://www.facebook.com/glykamarieee"><img alt="Facebook: glykamarieee" src="https://img.shields.io/badge/glykamarieee-0a0a0a?style=flat-square&logo=facebook&logoColor=white" height="28" /></a>
+  <br />
+  <img alt="Available for projects" src="https://img.shields.io/badge/Available_for_projects-c6ff3d?style=flat-square" height="28" />
+  <img alt="Profile views" src="https://komarev.com/ghpvc/?username=glykamarieee&label=Views&color=0a0a0a&style=flat-square" height="28" />
 </p>
 
 <picture>
