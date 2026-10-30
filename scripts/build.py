@@ -38,8 +38,9 @@ CRAFTS = [  # (title, one-liner)
 STACK = [
     ("Code", [
         ("Frontend", ["HTML & CSS", "JavaScript", "TypeScript", "React", "Tailwind CSS"]),
-        ("Languages", ["PHP", "Python", "Java", "C", "C++"]),
+        ("Backend", ["PHP", "Python"]),
         ("Database", ["MySQL"]),
+        ("Languages", ["Java", "C", "C++"]),
     ]),
     ("Cut", [
         ("Software", ["Premiere Pro", "DaVinci Resolve", "CapCut"]),
