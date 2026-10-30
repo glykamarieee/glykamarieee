@@ -33,10 +33,10 @@ CRAFTS = [  # (title, one-liner)
 
 # (craft, [(tool, level 1-5)]) — level 5 tools are highlighted as daily drivers
 STACK = [
-    ("Code", [("HTML & CSS", 5), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
+    ("Code", [("HTML & CSS", 4), ("JavaScript", 4), ("TypeScript", 4), ("React", 4),
               ("Next.js", 4), ("Tailwind CSS", 4), ("GSAP", 3), ("Git", 4)]),
     ("Cut", [("Premiere Pro", 4), ("After Effects", 3), ("DaVinci Resolve", 3),
-             ("CapCut", 5), ("Color grading", 4), ("Sound design", 3)]),
+             ("CapCut", 4), ("Color grading", 4), ("Sound design", 3)]),
     ("Capture", [("Cinematic framing", 4), ("Composition", 4), ("Camera movement", 4),
                  ("B-roll", 4), ("Phone filming", 4)]),
 ]
@@ -255,10 +255,11 @@ def stack(th):
 
     body = [t(2, 28, "Tech stack", 24, th["text"], 600, ls=-0.6),
             t(2, 50, "What I build, cut and shoot with.", 14, th["muted"])]
-    lx = W - 2
-    legend = "Daily driver"
-    body.append(t(lx, 46, legend, 12, th["muted"], anchor="end"))
-    body.append(f'<rect x="{lx - width(legend, 12) - 22}" y="35" width="14" height="14" rx="7" fill="{th["invert_bg"]}"/>')
+    if any(level == 5 for _, tools in STACK for _, level in tools):  # legend only when something is highlighted
+        lx = W - 2
+        legend = "Daily driver"
+        body.append(t(lx, 46, legend, 12, th["muted"], anchor="end"))
+        body.append(f'<rect x="{lx - width(legend, 12) - 22}" y="35" width="14" height="14" rx="7" fill="{th["invert_bg"]}"/>')
 
     for i, ((craft, _), items) in enumerate(zip(STACK, layouts)):
         x0 = i * (cw + gap)
