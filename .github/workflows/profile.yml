@@ -1,6 +1,7 @@
-# Draws the contribution snake in black and white (dark + light versions) and
-# publishes it to the `output` branch, which the README links to.
-name: Snake
+# Daily: draws the black-and-white contribution snake (dark + light) and the
+# ANALYSIS.EXE stats window from the GitHub API, then publishes both to the
+# `output` branch, which the README links to.
+name: Profile
 
 on:
   schedule:
@@ -17,12 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+
       - uses: Platane/snk@v3
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
             dist/snake-dark.svg?color_snake=#ffffff&color_dots=#161616,#3a3a3a,#6b6b6b,#a3a3a3,#ffffff
             dist/snake-light.svg?color_snake=#000000&color_dots=#ebebeb,#bdbdbd,#8a8a8a,#4f4f4f,#000000
+
+      - name: Draw ANALYSIS.EXE
+        run: python scripts/stats.py ${{ github.repository_owner }} dist/analysis.svg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:

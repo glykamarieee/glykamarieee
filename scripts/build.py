@@ -39,7 +39,7 @@ STACK = [
                  ("NATURAL LIGHT", 4), ("STORYBOARDING", 3), ("PHONE FILMING", 5)]),
 ]
 
-HEADINGS = ["ANALYSIS.EXE", "SNAKE.EXE", "CONTACT.EXE"]
+HEADINGS = ["SNAKE.EXE", "CONTACT.EXE"]  # ANALYSIS.EXE is drawn by scripts/stats.py
 
 # --------------------------------------------------------------- PIXELS --
 

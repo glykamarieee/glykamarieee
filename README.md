@@ -16,17 +16,9 @@
   <img src="assets/stack.svg" width="100%" alt="STACK.EXE — code: HTML & CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS, GSAP, Git · cut: Premiere Pro, After Effects, DaVinci Resolve, CapCut, color grading, sound design · capture: cinematic framing, camera movement, drone shots, natural light, storyboarding, phone filming" />
 </p>
 
+<!-- ANALYSIS.EXE is drawn daily from the GitHub API by .github/workflows/profile.yml -->
 <p align="center">
-  <img src="assets/heading-analysis.svg" width="100%" alt="ANALYSIS.EXE" />
-</p>
-
-<p align="center">
-  <img height="170" alt="GitHub stats" src="https://github-readme-stats.vercel.app/api?username=glykamarieee&show_icons=true&include_all_commits=true&count_private=true&custom_title=STATS.EXE&bg_color=000000&title_color=ffffff&text_color=ffffff&icon_color=ffffff&border_color=ffffff&border_radius=0" />
-  <img height="170" alt="GitHub streak" src="https://streak-stats.demolab.com?user=glykamarieee&background=000000&border=FFFFFF&stroke=FFFFFF&ring=FFFFFF&fire=FFFFFF&currStreakNum=FFFFFF&sideNums=FFFFFF&currStreakLabel=FFFFFF&sideLabels=FFFFFF&dates=9A9A9A&border_radius=0" />
-</p>
-
-<p align="center">
-  <img width="100%" alt="Contribution activity graph" src="https://github-readme-activity-graph.vercel.app/graph?username=glykamarieee&custom_title=ACTIVITY.EXE&bg_color=000000&color=ffffff&title_color=ffffff&line=ffffff&point=ffffff&area=true&area_color=ffffff&radius=0" />
+  <img src="https://raw.githubusercontent.com/glykamarieee/glykamarieee/output/analysis.svg" width="100%" alt="ANALYSIS.EXE — contributions, commits, streaks, repos, stars and followers over the last 12 months, with contributions per week" />
 </p>
 
 <p align="center">
