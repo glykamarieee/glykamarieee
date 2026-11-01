@@ -23,7 +23,9 @@ jobs:
       - name: Draw the Activity card (light + dark)
         run: python scripts/stats.py ${{ github.repository_owner }} dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # A personal access token sees private-repo contributions, so the totals
+          # match the profile; the Actions token alone undercounts them
+          GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
 
       # Same greys as the Activity heatmap; the busiest days are lime
       - uses: Platane/snk@v3

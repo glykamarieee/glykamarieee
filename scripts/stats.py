@@ -1,5 +1,11 @@
 """Draws the Activity card — GitHub stats and a contribution heatmap, light and
 dark — from the GitHub GraphQL API. Runs daily in .github/workflows/profile.yml.
+Covers the current calendar year, the same as the profile's "N contributions in
+<year>" graph.
+
+The token must be a personal access token (PROFILE_TOKEN secret). The Actions
+GITHUB_TOKEN works but can't see private-repo contributions, so the totals come
+out lower than the profile shows.
 
   python scripts/stats.py <login> <out-dir>          (needs GITHUB_TOKEN)
   python scripts/stats.py <login> <out-dir> --demo   (fake data, for previewing)
@@ -17,16 +23,15 @@ import urllib.request
 from build import ACCENT, THEMES, W, card, label, svg, t, width
 
 QUERY = """
-query($login: String!) {
+query($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
     followers { totalCount }
     repositories(ownerAffiliations: OWNER, privacy: PUBLIC, first: 100) {
       totalCount
       nodes { stargazerCount }
     }
-    contributionsCollection {
+    contributionsCollection(from: $from, to: $to) {
       totalCommitContributions
-      restrictedContributionsCount
       contributionCalendar {
         totalContributions
         weeks { contributionDays { contributionCount date } }
@@ -37,10 +42,11 @@ query($login: String!) {
 """
 
 
-def fetch(login):
+def fetch(login, year):
+    window = {"from": f"{year}-01-01T00:00:00Z", "to": f"{year}-12-31T23:59:59Z"}
     req = urllib.request.Request(
         "https://api.github.com/graphql",
-        data=json.dumps({"query": QUERY, "variables": {"login": login}}).encode(),
+        data=json.dumps({"query": QUERY, "variables": {"login": login, **window}}).encode(),
         headers={"Authorization": f"bearer {os.environ['GITHUB_TOKEN']}", "Content-Type": "application/json"},
     )
     with urllib.request.urlopen(req, timeout=30) as res:
@@ -50,17 +56,17 @@ def fetch(login):
     return data["data"]["user"]
 
 
-def demo():
+def demo(year):
     rnd = random.Random(4)
-    start = dt.date.today() - dt.timedelta(days=364)
-    days = [{"date": str(start + dt.timedelta(d)), "contributionCount": max(0, int(rnd.gauss(1, 3)))} for d in range(365)]
-    weeks = [{"contributionDays": days[i : i + 7]} for i in range(0, 365, 7)]
+    start = dt.date(year, 1, 1)
+    n = (dt.date(year, 12, 31) - start).days + 1
+    days = [{"date": str(start + dt.timedelta(d)), "contributionCount": max(0, int(rnd.gauss(1, 3)))} for d in range(n)]
+    weeks = [{"contributionDays": days[i : i + 7]} for i in range(0, n, 7)]
     return {
         "followers": {"totalCount": 7},
         "repositories": {"totalCount": 2, "nodes": [{"stargazerCount": 1}]},
         "contributionsCollection": {
             "totalCommitContributions": 210,
-            "restrictedContributionsCount": 40,
             "contributionCalendar": {"totalContributions": sum(d["contributionCount"] for d in days), "weeks": weeks},
         },
     }
@@ -86,7 +92,8 @@ def render(user, th):
     cc = user["contributionsCollection"]
     cal = cc["contributionCalendar"]
     days = [d for w in cal["weeks"] for d in w["contributionDays"]]
-    current, longest = streaks(days)
+    year = dt.date.fromisoformat(days[0]["date"]).year
+    current, longest = streaks([d for d in days if dt.date.fromisoformat(d["date"]) <= dt.date.today()])
     stars = sum(r["stargazerCount"] for r in user["repositories"]["nodes"])
 
     h, pad, gap = 352, 24, 12
@@ -94,7 +101,7 @@ def render(user, th):
 
     # Header
     body.append(t(pad, 42, "Activity", 24, th["text"], 600, ls=-0.6))
-    body.append(t(pad, 64, f"Last 12 months · updated {dt.date.today():%b %d, %Y}", 13, th["muted"]))
+    body.append(t(pad, 64, f"{year} · updated {dt.date.today():%b %d, %Y}", 13, th["muted"]))
     live = "Live from GitHub"
     lw = width(live, 12) + 34
     body.append(f'<rect x="{W - pad - lw + 0.5}" y="28.5" width="{lw:.0f}" height="27" rx="13.5" fill="{th["raised"]}" stroke="{th["border"]}"/>')
@@ -103,8 +110,8 @@ def render(user, th):
 
     # KPI tiles
     kpis = [
-        ("Contributions", f'{cal["totalContributions"]:,}', f'{cc["restrictedContributionsCount"]} private'),
-        ("Commits", f'{cc["totalCommitContributions"]:,}', "this year"),
+        ("Contributions", f'{cal["totalContributions"]:,}', f"in {year}"),
+        ("Commits", f'{cc["totalCommitContributions"]:,}', f"in {year}"),
         ("Current streak", f"{current}", "days in a row"),
         ("Longest streak", f"{longest}", "days"),
     ]
@@ -145,12 +152,13 @@ def render(user, th):
         body.append(f'<rect x="{lx + i * 14}" y="{fy - 10}" width="10" height="10" rx="2.5" fill="{color}"/>')
     body.append(t(lx + 5 * 14 + 4, fy, "More", 11, th["muted"]))
 
-    return svg(W, h, "".join(body), f"GitHub activity: {cal['totalContributions']} contributions in the last 12 months, current streak {current} days, longest {longest} days", th)
+    return svg(W, h, "".join(body), f"GitHub activity: {cal['totalContributions']} contributions in {year}, current streak {current} days, longest {longest} days", th)
 
 
 def main():
     login, out = sys.argv[1], sys.argv[2]
-    user = demo() if "--demo" in sys.argv else fetch(login)
+    year = dt.date.today().year
+    user = demo(year) if "--demo" in sys.argv else fetch(login, year)
     os.makedirs(out, exist_ok=True)
     for theme, th in THEMES.items():
         path = os.path.join(out, f"analysis-{theme}.svg")
