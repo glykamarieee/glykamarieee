@@ -1,6 +1,6 @@
 <!--
   Images in assets/ come from scripts/build.py (edit its DATA section and re-run).
-  Activity and the snake are redrawn daily by .github/workflows/profile.yml.
+  Activity and the snake are redrawn every hour by .github/workflows/profile.yml.
   Every image has a light and a dark version; GitHub picks the one matching the viewer's theme.
 -->
 
@@ -21,7 +21,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/glykamarieee/glykamarieee/output/analysis-dark.svg" />
-  <img src="https://raw.githubusercontent.com/glykamarieee/glykamarieee/output/analysis-light.svg" width="100%" alt="GitHub activity over the last 12 months: contributions, commits, streaks and a contribution heatmap" />
+  <img src="https://raw.githubusercontent.com/glykamarieee/glykamarieee/output/analysis-light.svg" width="100%" alt="GitHub activity this year: contributions, commits, streaks and a contribution heatmap" />
 </picture>
 
 <picture>

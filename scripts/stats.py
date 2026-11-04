@@ -1,5 +1,5 @@
 """Draws the Activity card — GitHub stats and a contribution heatmap, light and
-dark — from the GitHub GraphQL API. Runs daily in .github/workflows/profile.yml.
+dark — from the GitHub GraphQL API. Runs every hour in .github/workflows/profile.yml.
 Covers the current calendar year, the same as the profile's "N contributions in
 <year>" graph.
 
@@ -19,6 +19,9 @@ import os
 import random
 import sys
 import urllib.request
+
+# "Today" and the update time are in Cebu time, not the runner's UTC
+LOCAL = dt.timezone(dt.timedelta(hours=8), "PHT")
 
 from build import ACCENT, THEMES, W, card, label, svg, t, width
 
@@ -93,7 +96,7 @@ def render(user, th):
     cal = cc["contributionCalendar"]
     days = [d for w in cal["weeks"] for d in w["contributionDays"]]
     year = dt.date.fromisoformat(days[0]["date"]).year
-    current, longest = streaks([d for d in days if dt.date.fromisoformat(d["date"]) <= dt.date.today()])
+    current, longest = streaks([d for d in days if dt.date.fromisoformat(d["date"]) <= dt.datetime.now(LOCAL).date()])
     stars = sum(r["stargazerCount"] for r in user["repositories"]["nodes"])
 
     h, pad, gap = 352, 24, 12
@@ -101,7 +104,7 @@ def render(user, th):
 
     # Header
     body.append(t(pad, 42, "Activity", 24, th["text"], 600, ls=-0.6))
-    body.append(t(pad, 64, f"{year} · updated {dt.date.today():%b %d, %Y}", 13, th["muted"]))
+    body.append(t(pad, 64, f"{year} · updated {dt.datetime.now(LOCAL):%b %d, %H:%M} PHT", 13, th["muted"]))
     live = "Live from GitHub"
     lw = width(live, 12) + 34
     body.append(f'<rect x="{W - pad - lw + 0.5}" y="28.5" width="{lw:.0f}" height="27" rx="13.5" fill="{th["raised"]}" stroke="{th["border"]}"/>')
@@ -157,7 +160,7 @@ def render(user, th):
 
 def main():
     login, out = sys.argv[1], sys.argv[2]
-    year = dt.date.today().year
+    year = dt.datetime.now(LOCAL).year
     user = demo(year) if "--demo" in sys.argv else fetch(login, year)
     os.makedirs(out, exist_ok=True)
     for theme, th in THEMES.items():

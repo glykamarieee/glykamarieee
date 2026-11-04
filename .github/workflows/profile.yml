@@ -1,10 +1,10 @@
-# Draws the Activity card and the contribution snake (light + dark) daily and
+# Draws the Activity card and the contribution snake (light + dark) every hour and
 # publishes them to the `output` branch, which the README links to.
 name: Profile
 
 on:
   schedule:
-    - cron: "0 0 * * *" # daily
+    - cron: "17 * * * *" # every hour (off the :00 rush, when GitHub delays scheduled runs)
   workflow_dispatch:
   push:
     branches: [main]
